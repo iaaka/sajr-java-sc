@@ -13,6 +13,7 @@ public class SSIHashMap {
 	private HashSet<String> k2 = new HashSet<>();
 	private HashMap<String,Integer> h = new HashMap<>();
 	private final static String DELIMETER = ":";
+	private final static String EMPTYSTRING = "-";
 	
 	
 
@@ -27,6 +28,10 @@ public class SSIHashMap {
 	}
 	
 	public void set(String key1,String key2,int v) {
+		if(key1.equals(""))
+			key1 = EMPTYSTRING;
+		if(key2.equals(""))
+			key2 = EMPTYSTRING;
 		if(v == 0)
 			return;
 		k1.add(key1);
@@ -68,6 +73,7 @@ public class SSIHashMap {
 		o.println("%%MatrixMarket matrix coordinate "+type+" general");
 		o.println(ka1.length+" "+ka2.length+" "+h.size());
 		for(String s : h.keySet()) {
+			//System.out.println("key: "+s);
 			String[] ss = s.split(DELIMETER);
 			o.println(ka1h.get(ss[0])+" "+ka2h.get(ss[1])+" "+h.get(s));
 		}
