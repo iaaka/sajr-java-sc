@@ -69,7 +69,9 @@ public class SSIHashMap {
 		o.close();
 		//values
 		o = new PrintStream(out+".mtx");
-		String type = h.values().iterator().next() instanceof Integer?"integer":"real";
+		String type = "integer";
+		if(h.size()>0)
+			type = h.values().iterator().next() instanceof Integer?"integer":"real";
 		o.println("%%MatrixMarket matrix coordinate "+type+" general");
 		o.println(ka1.length+" "+ka2.length+" "+h.size());
 		for(String s : h.keySet()) {
