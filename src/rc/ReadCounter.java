@@ -53,7 +53,7 @@ class SingleReadReader {
 		int strand = Settings.S().getInt(Settings.STRANDED)*(r.getReadNegativeStrandFlag()?-1:1);
 		if(r.getReadPairedFlag() && !r.getFirstOfPairFlag())
 			strand = -strand;
-		if(r.getCharacterAttribute("XS") != null) //probably it would be better to check that it isn't contradict to getReadNegativeStrandFlag...
+		if(r.getAttribute("XS") instanceof Character && r.getCharacterAttribute("XS") != null) //probably it would be better to check that it isn't contradict to getReadNegativeStrandFlag...
 			strand = r.getCharacterAttribute("XS") == '+'?1:-1;
 		String bc = r.getStringAttribute(Settings.S().getString(Settings.BAM_CELL_BARCODE_ATTR));
 		c.addRead(inters, strand,bc);
@@ -100,10 +100,8 @@ class PairedReadReader {
 			int[] r1 = Util.getMapIntervals(f);
 			int[] r2 = Util.getMapIntervals(s);
 			int strand = Settings.S().getInt(Settings.STRANDED)*(f.getReadNegativeStrandFlag()?-1:1);
-			if(f.getCharacterAttribute("XS") != null) //Probably it would be better to check that it isn't contradict to getReadNegativeStrandFlag...
+			if(f.getAttribute("XS") instanceof Character && f.getCharacterAttribute("XS") != null) //Probably it would be better to check that it isn't contradict to getReadNegativeStrandFlag...
 				strand = f.getCharacterAttribute("XS") == '+'?1:-1;
-			if(s.getCharacterAttribute("XS") != null) //Probably it would be better to check that it isn't contradict to getReadNegativeStrandFlag...
-				strand = s.getCharacterAttribute("XS") == '+'?1:-1;
 			String bc = r.getStringAttribute(Settings.S().getString(Settings.BAM_CELL_BARCODE_ATTR));
 			c.addReads(r1, r2, strand,bc);
 
