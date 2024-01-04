@@ -55,6 +55,9 @@ public class Settings {
 	public static final String FOREIGN_JUNC_COV  = "foreign_junc_cov";
 	public static final String FORSED_INTRON_SET = "forced_intron_set";
 	
+	public static final String BAM_CELL_BARCODE_ATTR = "bam_cell_barcode_attr";
+	public static final String BAM_UMI_ATTR = "bam_umi_attr";
+	
 	public static final String GFF_IN  = "gff_in";
 	public static final String GFF_OUT  = "gff_out";
 	public static final String SEG_COUNTS_PATH  = "seg_counts_path";
