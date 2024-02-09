@@ -16,6 +16,7 @@ public class Interval implements Comparable<Interval>{
 		this.stop = stop;
 		this.strand = strand;
 		this.cov = new HashMap<>();
+		unstranded = strand == 0;
 	}
 	
 	public Interval(int start,int stop, int strand,String id) {
@@ -59,7 +60,7 @@ public class Interval implements Comparable<Interval>{
 			return true;
 		if(arg0 instanceof Interval){
 			Interval i = (Interval) arg0;
-			return (unstranded || i.strand == strand) && i.start == start && i.stop == stop && ((id == null && i.id == null) || id.equals(i.id)); 
+			return (unstranded || i.unstranded || i.strand == strand) && i.start == start && i.stop == stop && ((id == null && i.id == null) || id.equals(i.id)); 
 		}
 		return false;
 	}
@@ -67,13 +68,14 @@ public class Interval implements Comparable<Interval>{
 	/**
 	 * if true, strand doesn't affect equals and compareTo methods;
 	 * @param us
-	 */
+	 
 	public void setUnstranded(boolean us){
 		unstranded = us;
 	}
+	*/
 
 	public int compareTo(Interval o) {
-		if(!unstranded && o.strand != strand)
+		if(!unstranded && !o.unstranded && o.strand != strand)
 			return strand - o.strand;
 		if(o.start != start)
 			return start - o.start;
@@ -85,7 +87,7 @@ public class Interval implements Comparable<Interval>{
 	}
 
 	public int hashCode() {
-		return (strand!=0?strand:1)*(start+stop);
+		return start+stop;
 	}
 	
 	public String toString() {
