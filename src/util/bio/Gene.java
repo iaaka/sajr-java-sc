@@ -43,7 +43,7 @@ public class Gene extends Interval {
 	}
 	
 	public void addIntron(Intron i){
-		if(i.strand != strand)
+		if(i.strand!=0 && i.strand != strand)
 			Log.closeWithError("Cannot add intron: intron from another strand.\n"+i+"\n"+this, new RuntimeException());
 		if(i.start < start || i.stop > stop)
 			Log.closeWithError("Cannot add intron: intron is not within gene:\n"+i+"\n"+this, new RuntimeException());
