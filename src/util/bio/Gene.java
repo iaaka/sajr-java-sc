@@ -150,7 +150,7 @@ public class Gene extends Interval {
 	}
 	
 	/**
-	 * introns and exons shoule be sorted
+	 * introns and exons should be sorted
 	 * @return for each internal segment gives introns that span it (if any). For first and last segments gives introns that link it to the rest of gene.
 	 */
 	@SuppressWarnings("incomplete-switch")

@@ -106,15 +106,16 @@ public class ChrAnnotation {
 				if(Settings.S().getBoolean(Settings.LOOK_FOR_GENE_FOR_UNKNOWN_JUNCTIONS)){
 					HashSet<Gene> lg = leftSS2genes.get(r[i-1]+1);
 					HashSet<Gene> rg = rightSS2genes.get(r[i]-1);
+					HashSet<Gene> gs = new HashSet<>();
 					if(lg != null && rg != null) {
-						HashSet<Gene> gs = Util.intersect(lg, rg);
-						if(gs.size() != 0) {
-							for(Gene g: gs) {
-								if(g.strand == strand){
-									g.addIntronAndSort(newInt);
-									int2genes.add(g);
-								}
-							}
+						gs = Util.intersect(lg, rg);
+					}else { // search for gene by overlap
+						gs = getGenesByOverlap(r[i-1]+1,r[i]-1,strand);	
+					}
+					for(Gene g: gs) {
+						if(strand==0 || g.strand == strand){
+							g.addIntronAndSort(newInt);
+							int2genes.add(g);
 						}
 					}
 				}
