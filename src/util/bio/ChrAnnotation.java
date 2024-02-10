@@ -110,10 +110,10 @@ public class ChrAnnotation {
 					if(lg != null && rg != null) {
 						gs = Util.intersect(lg, rg);
 					}else { // search for gene by overlap
-						gs = getGenesByOverlap(r[i-1]+1,r[i]-1,strand);	
+						gs = getGenesByOverlap(newInt.start,newInt.stop,strand);	
 					}
 					for(Gene g: gs) {
-						if(strand==0 || g.strand == strand){
+						if((strand==0 || g.strand == strand) && g.start <= newInt.start && g.stop>=newInt.stop){
 							g.addIntronAndSort(newInt);
 							int2genes.add(g);
 						}
