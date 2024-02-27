@@ -78,6 +78,10 @@ public class Intron extends Interval {
 		return read_positions == null?0:read_positions.size();
 	}
 	
+	public String toString() {
+		return strand+":"+start+"-"+stop;
+	}
+	
 //	public void addReads(Intron i){
 //		if(read_positions == null)
 //			read_positions = new HashSet<>();
