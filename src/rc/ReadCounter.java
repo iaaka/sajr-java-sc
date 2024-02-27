@@ -344,21 +344,41 @@ public class ReadCounter {
 	private void printSegCov(ArrayList<Gene> genes) throws FileNotFoundException {
 		SSIHashMap ir = new SSIHashMap();
 		SSIHashMap er = new SSIHashMap();
-		
+		ArrayList<String> segids_a = new ArrayList<>();
+				
 		for(Gene g : genes) {
+			for(int i =0;i<g.getSegCount();i++) {
+				segids_a.add(g.getSeg(i).getId());
+			}
+
 			SSIHashMap[] t = g.getSegCoverage();
 			ir.addAll(t[0]);
 			er.addAll(t[1]);
 		}
-		HashSet<String> t = ir.getKeys1();
-		t.addAll(er.getKeys1());
-		String[] segids = t.toArray(new String[0]);
+		String[] segids = segids_a.toArray(new String[0]);
 		
-		t= ir.getKeys2();
+		HashSet<String> t= ir.getKeys2();
 		t.addAll(er.getKeys2());
 		String[] cells = t.toArray(new String[0]);
 		
+		// introns
+		ArrayList<Intron> introns = new ArrayList<>();
+		for(ChrAnnotation	ca : chrs.values()) {
+			introns.addAll(ca.getIntrons());
+		}
+		HashSet<String> intron_names_h = new HashSet<>();
+		SSIHashMap ic = new SSIHashMap();
+		for(int i =0;i<introns.size();i++) {
+			intron_names_h.add(introns.get(i).toString());
+			for(String cell : cells) {
+				ic.set(introns.get(i).toString(), cell, introns.get(i).getCov(cell));
+			}
+		}
+		String[] intron_names = intron_names_h.toArray(new String[0]);
+		
 		ir.writeMM(Settings.S().getString(Settings.OUT_BASE)+".i", segids, cells);
 		er.writeMM(Settings.S().getString(Settings.OUT_BASE)+".e", segids, cells);
+		ic.writeMM(Settings.S().getString(Settings.OUT_BASE)+".intron", intron_names, cells);
 	}
 }
+

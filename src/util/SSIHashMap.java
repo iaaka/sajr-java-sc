@@ -12,7 +12,7 @@ public class SSIHashMap {
 	private HashSet<String> k1 = new HashSet<>();
 	private HashSet<String> k2 = new HashSet<>();
 	private HashMap<String,Integer> h = new HashMap<>();
-	private final static String DELIMETER = ":";
+	private final static String DELIMETER = "%^&";
 	private final static String EMPTYSTRING = "-";
 	
 	
@@ -76,14 +76,19 @@ public class SSIHashMap {
 		o.println(ka1.length+" "+ka2.length+" "+h.size());
 		for(String s : h.keySet()) {
 			//System.out.println("key: "+s);
-			String[] ss = s.split(DELIMETER);
+			String[] ss = splitf(s,DELIMETER);
 			o.println(ka1h.get(ss[0])+" "+ka2h.get(ss[1])+" "+h.get(s));
 		}
 	}
 	
+	public static String[] splitf(String s,String del){
+		int i = s.indexOf(del);
+		return new String[] {s.substring(0, i),s.substring(i+del.length())};
+	}
+	
 	public static void main(String[] args) throws FileNotFoundException {
-		System.out.println("afafgew");
-		String[] ss = ("aad"+DELIMETER+"ad").split(DELIMETER);
+		String[] ss = splitf("aad"+DELIMETER+"ad",DELIMETER);
+		
 		for(String s : ss)
 			System.out.println(s);
 //		SSIHashMap h = new SSIHashMap();

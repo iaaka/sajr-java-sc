@@ -104,12 +104,16 @@ public class ChrAnnotation {
 				LinkedList<Gene> int2genes = new LinkedList<>();
 				intron2genes.put(newInt, int2genes);
 				if(Settings.S().getBoolean(Settings.LOOK_FOR_GENE_FOR_UNKNOWN_JUNCTIONS)){
+					// search genes by sites
 					HashSet<Gene> lg = leftSS2genes.get(r[i-1]+1);
 					HashSet<Gene> rg = rightSS2genes.get(r[i]-1);
 					HashSet<Gene> gs = new HashSet<>();
 					if(lg != null && rg != null) {
 						gs = Util.intersect(lg, rg);
-					}else { // search for gene by overlap
+					}
+					// search for gene by overlap
+					// maybe this search should be enabled by additional switch, not just LOOK_FOR_GENE_FOR_UNKNOWN_JUNCTIONS?
+					if(gs.size()==0) { 
 						gs = getGenesByOverlap(newInt.start,newInt.stop,strand);	
 					}
 					for(Gene g: gs) {
