@@ -86,7 +86,7 @@ public class Gene extends Interval {
 				
 				}
 			}
-			//print
+
 			for(int i =0;i<segs.size();i++) {
 				Seg s = segs.get(i);
 				if(s.getId() == null)
@@ -330,6 +330,9 @@ public class Gene extends Interval {
 		
 	public HashSet<Seg> getSegForRead(int[] r){
 		HashSet<Seg> res = new HashSet<>();
+		if(Settings.S().getBoolean(Settings.COUNT_ONLY_BORDER_READS) & r.length==2) {
+			return res;
+		}
 		for(int i=0;i<r.length;i+=2) {
 			int inx = Collections.binarySearch(segs, new Interval(r[i],r[i+1],strand)); 
 			if(inx < 0)
@@ -341,6 +344,23 @@ public class Gene extends Interval {
 					break;
 				res.add(segs.get(inx));
 			}
+		}
+		// I will require that at least one segment border should be splicing site used by read
+		// something unexpected can happen for site bordered not by splicing sites....
+		if(Settings.S().getBoolean(Settings.COUNT_ONLY_BORDER_READS)){
+			// prepare junction borders
+			HashSet<Integer> starts = new HashSet<>();
+			HashSet<Integer> stops = new HashSet<>();
+			for(int i=1;i<r.length-1;i+=2) {
+				stops.add(r[i]);
+				starts.add(r[i+1]);	
+			}
+			HashSet<Seg> res_ = new HashSet<>();
+			for(Seg s : res) {
+				if(starts.contains(s.start) || stops.contains(s.stop))
+					res_.add(s);
+			}
+			res = res_;
 		}
 		return res;
 	}

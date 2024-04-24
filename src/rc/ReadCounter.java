@@ -359,9 +359,9 @@ public class ReadCounter {
 		}
 		String[] segids = segids_a.toArray(new String[0]);
 		
-		HashSet<String> t= ir.getKeys2();
-		t.addAll(er.getKeys2());
-		String[] cells = t.toArray(new String[0]);
+		HashSet<String> cells_h= ir.getKeys2();
+		cells_h.addAll(er.getKeys2());
+		
 		
 		// introns
 		ArrayList<String> intron_names_h = new ArrayList<>();
@@ -372,10 +372,12 @@ public class ReadCounter {
 				String int_name = chr_name+":"+introns.get(i).toString();
 				intron_names_h.add(int_name);
 				for(String cell : introns.get(i).getBarcodes()) {
+					cells_h.add(cell);
 					ic.set(int_name, cell, introns.get(i).getCov(cell));
 				}
 			}
-		}	
+		}
+		String[] cells = cells_h.toArray(new String[0]);
 		String[] intron_names = intron_names_h.toArray(new String[0]);
 			
 		ir.writeMM(Settings.S().getString(Settings.OUT_BASE)+".i", segids, cells);

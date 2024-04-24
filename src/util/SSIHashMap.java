@@ -75,8 +75,12 @@ public class SSIHashMap {
 		o.println("%%MatrixMarket matrix coordinate "+type+" general");
 		o.println(ka1.length+" "+ka2.length+" "+h.size());
 		for(String s : h.keySet()) {
-			//System.out.println("key: "+s);
 			String[] ss = splitf(s,DELIMETER);
+			//System.out.println("key: "+s+" '"+ka1h.get(ss[0])+" "+ka2h.get(ss[1])+" "+h.get(s)+"'");
+			if(ka1h.get(ss[0]) == null) {
+				o.close();
+				throw new FileNotFoundException("unknown key: '"+ss[0]+"'. from '"+s+"'");
+			}
 			o.println(ka1h.get(ss[0])+" "+ka2h.get(ss[1])+" "+h.get(s));
 		}
 	}
