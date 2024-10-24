@@ -39,7 +39,10 @@ public class Interval implements Comparable<Interval>{
 			inx = bc2inx.size();
 			bc2inx.put(bc, inx);
 		}
-		cov.put(inx, cov.get(inx)+1);
+		Integer val = cov.get(inx);
+		if(val == null)
+			val = 0;
+		cov.put(inx, val+1);
 	}
 	
 	public String getId(){
