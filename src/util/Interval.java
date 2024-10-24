@@ -8,7 +8,8 @@ public class Interval implements Comparable<Interval>{
 	public final int stop;
 	public final int strand;
 	private String id= null;
-	private HashMap<String,Integer> cov;
+	static private HashMap<String,Integer> bc2inx = new HashMap<String, Integer>();
+	private HashMap<Integer,Integer> cov;
 	private boolean unstranded=false;
 	
 	public Interval(int start,int stop, int strand) {
@@ -25,17 +26,20 @@ public class Interval implements Comparable<Interval>{
 	}
 	
 	public int getCov(String bc) {
-		if(!cov.containsKey(bc))
+		if(!bc2inx.containsKey(bc))
 			return(0);
-		return cov.get(bc);
+		return cov.get(bc2inx.get(bc));
 	}
 	
 	public void addCov(String bc) {
 		if(bc == null)
 			bc = "";
-		if(!cov.containsKey(bc))
-			cov.put(bc, 0);
-		cov.put(bc, cov.get(bc)+1);
+		Integer inx = bc2inx.get(bc);
+		if(inx == null) {
+			inx = bc2inx.size();
+			bc2inx.put(bc, inx);
+		}
+		cov.put(inx, cov.get(inx)+1);
 	}
 	
 	public String getId(){
@@ -43,12 +47,12 @@ public class Interval implements Comparable<Interval>{
 	}
 	
 	public Set<String> getBarcodes(){
-		return cov.keySet();
+		return bc2inx.keySet();
 	}
 	
 	public int getTotalCov() {
 		int r = 0;
-		for(String k : cov.keySet())
+		for(Integer k : cov.keySet())
 			r += cov.get(k);
 		return r;
 	}

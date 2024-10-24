@@ -2,6 +2,7 @@ package util;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -9,22 +10,30 @@ import util.bio.Gene;
 
 
 public class SSIHashMap {
-	private HashSet<String> k1 = new HashSet<>();
-	private HashSet<String> k2 = new HashSet<>();
-	private HashMap<String,Integer> h = new HashMap<>();
-	private final static String DELIMETER = "%^&";
+	private HashMap<String,Integer> k2 = new HashMap<>();
+	private ArrayList<String> inx2k2 = new ArrayList<String>();
+	private HashMap<String,HashMap<Integer,Integer>> h = new HashMap<>();
 	private final static String EMPTYSTRING = "-";
 	
 	
-
-	@SuppressWarnings("unchecked")
 	public HashSet<String> getKeys1(){
-		return (HashSet<String>) k1.clone();
+		HashSet<String> res = new HashSet<>();
+		res.addAll(h.keySet());
+		return  res;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public HashSet<String> getKeys2(){
-		return (HashSet<String>) k2.clone();
+		HashSet<String> res = new HashSet<>();
+		res.addAll(k2.keySet());
+		return res;
+	}
+	
+	private Integer get(String key1,Integer inx2) {
+		return h.get(key1).get(inx2);
+	}
+	
+	public Integer get(String key1,String key2) {
+		return this.get(key1,k2.get(key2));
 	}
 	
 	public void set(String key1,String key2,int v) {
@@ -34,16 +43,31 @@ public class SSIHashMap {
 			key2 = EMPTYSTRING;
 		if(v == 0)
 			return;
-		k1.add(key1);
-		k2.add(key2);
-		h.put(key1+DELIMETER+key2, v);
+		Integer inx2 = k2.get(key2);
+		if(inx2 == null) {
+			inx2 = k2.size();
+			k2.put(key2, inx2);
+			inx2k2.add(key2);
+		}
+		if(!h.containsKey(key1)) {
+			h.put(key1, new HashMap<>());
+		}
+		h.get(key1).put(inx2,v);
 	}
 	
 	public void addAll(SSIHashMap v) {
-		for(String k : v.h.keySet())
-			h.put(k, v.h.get(k));
-		k1.addAll(v.k1);
-		k2.addAll(v.k2);
+		for(String k1 : v.h.keySet()) {
+			for(Integer inx2 : v.h.get(k1).keySet()) {
+				this.set(k1,v.inx2k2.get(inx2), v.get(k1,inx2));
+			}
+		}
+	}
+	
+	public int size() {
+		int size = 0;
+		for(HashMap<Integer, Integer> v : h.values())
+			size += v.size();
+		return size;
 	}
 	
 	public void writeMM(String out,String[] ka1,String[] ka2) throws FileNotFoundException {
@@ -70,36 +94,26 @@ public class SSIHashMap {
 		//values
 		o = new PrintStream(out+".mtx");
 		String type = "integer";
-		if(h.size()>0)
-			type = h.values().iterator().next() instanceof Integer?"integer":"real";
 		o.println("%%MatrixMarket matrix coordinate "+type+" general");
-		o.println(ka1.length+" "+ka2.length+" "+h.size());
-		for(String s : h.keySet()) {
-			String[] ss = splitf(s,DELIMETER);
-			//System.out.println("key: "+s+" '"+ka1h.get(ss[0])+" "+ka2h.get(ss[1])+" "+h.get(s)+"'");
-			if(ka1h.get(ss[0]) == null) {
+		o.println(ka1.length+" "+ka2.length+" "+this.size());
+		for(String k1 : h.keySet()) {
+			if(ka1h.get(k1) == null) {
 				o.close();
-				throw new FileNotFoundException("unknown key: '"+ss[0]+"'. from '"+s+"'");
+				throw new FileNotFoundException("unknown key1: '"+k1+"'");
 			}
-			o.println(ka1h.get(ss[0])+" "+ka2h.get(ss[1])+" "+h.get(s));
+			for(Integer inx2 : h.get(k1).keySet()) {
+				String k2 = inx2k2.get(inx2);
+				o.println(ka1h.get(k1)+" "+ka2h.get(k2)+" "+this.get(k1,k2));
+			}
 		}
 	}
 	
-	public static String[] splitf(String s,String del){
-		int i = s.indexOf(del);
-		return new String[] {s.substring(0, i),s.substring(i+del.length())};
-	}
-	
 	public static void main(String[] args) throws FileNotFoundException {
-		String[] ss = splitf("aad"+DELIMETER+"ad",DELIMETER);
-		
-		for(String s : ss)
-			System.out.println(s);
-//		SSIHashMap h = new SSIHashMap();
-//		h.set("c1", "b1", 5);
-//		h.set("c1", "b2", 2);
-//		h.set("c2", "b2", 3);
-//		h.set("c2", "b3", 7);
-//		h.writeMM("test", new String[] {"c1","c2","c3","c4"}, new String[] {"b1","b2","b3","b4"});
+		SSIHashMap h = new SSIHashMap();
+		h.set("c1", "b1", 5);
+		h.set("c1", "b2", 2);
+		h.set("c2", "b2", 3);
+		h.set("c2", "b3", 7);
+		h.writeMM("test", new String[] {"c1","c2","c3","c4"}, new String[] {"b1","b2","b3","b4"});
 	}
 }

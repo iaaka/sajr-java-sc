@@ -237,7 +237,7 @@ public class ReadCounter {
 			Log.closeWithError("Input file '"+Settings.S().getString(Settings.IN)+"' is not sorted",new RuntimeException());
 		SingleReadReader sreader = new SingleReadReader(chrs);
 		PairedReadReader preader = new PairedReadReader(chrs);
-		int i = 0;
+		long i = 0;
 		Iterator<SAMRecord> samIterator = in.iterator();
 		for(;samIterator.hasNext();) {
 			try{
@@ -329,7 +329,7 @@ public class ReadCounter {
 			pos = start;
 			reads.clear();
 		}
-		if(!reads.add(r.getContig()+"|"+start+"|"+r.getCigarString()+"|"+bc+"|"+umi)) {
+		if(!reads.add(r.getContig()+"|"+r.getCigarString()+"|"+bc+"|"+umi)) {
 			Log.addStat(Log.PCR_DUPLICATES, 1);
 			return false;
 		}
