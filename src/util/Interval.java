@@ -1,6 +1,8 @@
 package util;
 
-import java.util.HashMap; 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set; 
 
 public class Interval implements Comparable<Interval>{
@@ -9,6 +11,7 @@ public class Interval implements Comparable<Interval>{
 	public final int strand;
 	private String id= null;
 	static private HashMap<String,Integer> bc2inx = new HashMap<String, Integer>();
+	static private ArrayList<String> inx2bc = new ArrayList<String>();
 	private HashMap<Integer,Integer> cov;
 	private boolean unstranded=false;
 	
@@ -38,6 +41,7 @@ public class Interval implements Comparable<Interval>{
 		if(inx == null) {
 			inx = bc2inx.size();
 			bc2inx.put(bc, inx);
+			inx2bc.add(bc);
 		}
 		Integer val = cov.get(inx);
 		if(val == null)
@@ -50,7 +54,10 @@ public class Interval implements Comparable<Interval>{
 	}
 	
 	public Set<String> getBarcodes(){
-		return bc2inx.keySet();
+		HashSet<String> res = new HashSet<String>();
+		for(int i : cov.keySet())
+			res.add(inx2bc.get(i));
+		return res;
 	}
 	
 	public int getTotalCov() {
