@@ -26,7 +26,7 @@ public class Interval implements Comparable<Interval>{
 	}
 	
 	public int getCov(String bc) {
-		if(!bc2inx.containsKey(bc))
+		if(!bc2inx.containsKey(bc) || !cov.containsKey(bc2inx.get(bc)))
 			return(0);
 		return cov.get(bc2inx.get(bc));
 	}

@@ -345,17 +345,19 @@ public class ReadCounter {
 		SSIHashMap ir = new SSIHashMap();
 		SSIHashMap er = new SSIHashMap();
 		ArrayList<String> segids_a = new ArrayList<>();
-				
+		
+		Log.println("Process genes:");
+		int j = 0;
 		for(Gene g : genes) {
 			for(int i =0;i<g.getSegCount();i++) {
 				// segments with null id are pseudo segments on place of constitutive introns
 				if(g.getSeg(i).getId()!=null)
 					segids_a.add(g.getSeg(i).getId());
 			}
-
-			SSIHashMap[] t = g.getSegCoverage();
-			ir.addAll(t[0]);
-			er.addAll(t[1]);
+			if(j % 1000 ==0)
+			Log.println(j+" from " + genes.size());
+			j++;
+			g.setSegCoverage(ir,er);
 		}
 		String[] segids = segids_a.toArray(new String[0]);
 		
@@ -364,19 +366,22 @@ public class ReadCounter {
 		
 		
 		// introns
+		Log.println("Process introns:");
 		ArrayList<String> intron_names_h = new ArrayList<>();
 		SSIHashMap ic = new SSIHashMap();
 		for(String chr_name : chrs.keySet()) {
+			Log.println(chr_name);
 			ArrayList<Intron> introns = chrs.get(chr_name).getIntrons();
 			for(int i =0;i<introns.size();i++) {
 				String int_name = chr_name+":"+introns.get(i).toString();
 				intron_names_h.add(int_name);
 				for(String cell : introns.get(i).getBarcodes()) {
-					cells_h.add(cell);
 					ic.set(int_name, cell, introns.get(i).getCov(cell));
 				}
 			}
 		}
+		cells_h.addAll(ic.getKeys2());
+		
 		String[] cells = cells_h.toArray(new String[0]);
 		String[] intron_names = intron_names_h.toArray(new String[0]);
 			

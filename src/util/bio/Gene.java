@@ -56,9 +56,7 @@ public class Gene extends Interval {
 	}	
 	
 	@SuppressWarnings({ "unchecked", "incomplete-switch" })
-	public SSIHashMap[] getSegCoverage(){
-		SSIHashMap ir = new SSIHashMap();
-		SSIHashMap er = new SSIHashMap();
+	public void setSegCoverage(SSIHashMap ir,SSIHashMap er){
 		
 		HashMap<Seg,LinkedList<Intron>> seg2intron = linkSeg2Introns();
 		
@@ -111,8 +109,6 @@ public class Gene extends Interval {
 				}
 			}
 		}
-		
-		return new SSIHashMap[] {ir,er};
 	}
 	
 	

@@ -10,10 +10,9 @@ import util.bio.Gene;
 
 
 public class SSIHashMap {
-	private HashMap<String,Integer> k2 = new HashMap<>();
+	private HashMap<String,Integer> k22inx = new HashMap<>();
 	private ArrayList<String> inx2k2 = new ArrayList<String>();
 	private HashMap<String,HashMap<Integer,Integer>> h = new HashMap<>();
-	private final static String EMPTYSTRING = "-";
 	
 	
 	public HashSet<String> getKeys1(){
@@ -24,7 +23,7 @@ public class SSIHashMap {
 	
 	public HashSet<String> getKeys2(){
 		HashSet<String> res = new HashSet<>();
-		res.addAll(k2.keySet());
+		res.addAll(k22inx.keySet());
 		return res;
 	}
 	
@@ -33,35 +32,33 @@ public class SSIHashMap {
 	}
 	
 	public Integer get(String key1,String key2) {
-		return this.get(key1,k2.get(key2));
+		return this.get(key1,k22inx.get(key2));
 	}
 	
 	public void set(String key1,String key2,int v) {
-		if(key1.equals(""))
-			key1 = EMPTYSTRING;
-		if(key2.equals(""))
-			key2 = EMPTYSTRING;
 		if(v == 0)
 			return;
-		Integer inx2 = k2.get(key2);
+		Integer inx2 = k22inx.get(key2);
 		if(inx2 == null) {
-			inx2 = k2.size();
-			k2.put(key2, inx2);
+			inx2 = k22inx.size();
+			k22inx.put(key2, inx2);
 			inx2k2.add(key2);
 		}
-		if(!h.containsKey(key1)) {
-			h.put(key1, new HashMap<>());
+		HashMap<Integer,Integer> map = h.get(key1); 
+		if(map == null) {
+			map = new HashMap<>();
+			h.put(key1, map);
 		}
-		h.get(key1).put(inx2,v);
+		map.put(inx2,v);
 	}
 	
-	public void addAll(SSIHashMap v) {
-		for(String k1 : v.h.keySet()) {
-			for(Integer inx2 : v.h.get(k1).keySet()) {
-				this.set(k1,v.inx2k2.get(inx2), v.get(k1,inx2));
-			}
-		}
-	}
+//	public void addAll(SSIHashMap v) {
+//		for(String k1 : v.h.keySet()) {
+//			for(Integer inx2 : v.h.get(k1).keySet()) {
+//				this.set(k1,v.inx2k2.get(inx2), v.get(k1,inx2));
+//			}
+//		}
+//	}
 	
 	public int size() {
 		int size = 0;
