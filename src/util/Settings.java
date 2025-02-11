@@ -17,7 +17,6 @@ public class Settings {
 	static String fname = "sajr.config";
 	private static Settings singleton;
 
-	public static final String IN = "in";
 	public static final String FASTA = "fasta";
 	public static final String STRANDED = "stranded";
 	public static final String SITE_USAGE_FREQ = "site_usage_freq";
@@ -35,7 +34,6 @@ public class Settings {
 	public static final String COUNT_INTRON_READS = "count_intron_reads";
 	public static final String VERBOSE = "verbose";
 	public static final String SUPPRESS_WARNINGS = "suppress_warnings";
-	public static final String OUT_BASE = "out_base";
 	public static final String COUNT_ONLY_INTERNAL = "count_only_internal";
 	public static final String EFFECTIVE_READ_LENGTH = "effective_read_length";
 	public static final String USE_READS_WITH_UNKNOWN_JUNCTIONS = "use_reads_with_unknown_junctions";
@@ -54,6 +52,7 @@ public class Settings {
 	public static final String FILL_NS  = "fill_ns";
 	public static final String FOREIGN_JUNC_COV  = "foreign_junc_cov";
 	public static final String FORSED_INTRON_SET = "forced_intron_set";
+	public static final String GENOME_POS = "genome_pos";
 	
 	public static final String BAM_CELL_BARCODE_ATTR = "bam_cell_barcode_attr";
 	public static final String BAM_UMI_ATTR = "bam_umi_attr";
@@ -67,6 +66,7 @@ public class Settings {
 	public static final String COMP_ANN1 = "comp_ann1";
 	public static final String COMP_ANN2 = "comp_ann2";
 	public static final String COMP_OUT = "comp_out";
+	
 	
 	public static final String SHORT_VERSION = "SAJR-0.1";
 	public static final String VERSION = SHORT_VERSION+": Splicing Ananalyzer by Java&R";

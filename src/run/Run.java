@@ -32,23 +32,32 @@ public class Run {
 			printHelp();
 			return;
 		}
+		
+		String genome_pos = Settings.S().getString(Settings.GENOME_POS);
+		String contig = null;
+		int start = 0;
+		int end = 0;
+		if(!genome_pos.equals("-")) {
+			String[] pos = genome_pos.split(":");
+			contig = pos[0];
+			if(pos.length>1) {
+				pos = pos[1].split("-");
+				start = Integer.parseInt(pos[0]);
+				end = Integer.parseInt(pos[1]);
+			}
+		}
+		
 		switch(args[0]) {
 		case COUNT_READS:
 			String batch_in = Settings.S().getString(Settings.BATCH_IN);
-			if(batch_in.equals("null"))
-				ReadCounter.countAndPrint();
-			else {
-				String[] in = batch_in.split(",");
-				String[] out = Settings.S().getString(Settings.BATCH_OUT).split(",");
-				if(in.length != out.length) {
-					Log.closeWithError("Number of elements in batch_in isn't equal to number of elements in batch_out", null);
-					return;
-				}
-				for(int i=0;i<in.length;i++) {
-					 Settings.S().set(Settings.IN, in[i]);
-					 Settings.S().set(Settings.OUT_BASE, out[i]);
-					 ReadCounter.countAndPrint();
-				}
+			String[] in = batch_in.split(",");
+			String[] out = Settings.S().getString(Settings.BATCH_OUT).split(",");
+			if(in.length != out.length) {
+				Log.closeWithError("Number of elements in batch_in isn't equal to number of elements in batch_out", null);
+				return;
+			}
+			for(int i=0;i<in.length;i++) {
+				 ReadCounter.countAndPrint(in[i],out[i],contig,start,end);
 			}
 			break;
 		case GFF2SAJR:

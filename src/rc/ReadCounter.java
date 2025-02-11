@@ -130,15 +130,23 @@ public class ReadCounter {
 	// to collapse UMIs
 	int pos = -1;
 	HashSet<String> reads = new HashSet<String>();
+	String contig = null;
+	int start = 0;
+	int end = 0;
+	
 
-	public ReadCounter() {
+	public ReadCounter(String contig, int start, int end) {
+		this.contig = contig;
+		this.start = start;
+		this.end = end;
+		
 		try {
 			loadGff(Settings.S().getString(Settings.ANN_IN));
 		} catch (Exception e) {
 			Log.closeWithError("Cannot read annotation file: "+Settings.S().getString(Settings.ANN_IN),e);
 		}
 	}
-	
+		
 	/**
 	 * if data is unstranded, loaded annotation will be also unstranded
 	 * @param f
@@ -180,6 +188,13 @@ public class ReadCounter {
 		});
 		//parse
 		for(GFFeature f : gff){
+			String gene_id = f.getAttr("gene_id");
+			boolean skip = ((contig != null) && !f.seqname.equals(contig)) || 
+				  		   ((start != 0) && (f.stop < start)) ||
+				  		   ((end != 0) && (f.start > end));
+			// do not skip part of gene that overlap the region
+			skip = skip & !(g != null && g.getId().equals(gene_id));
+			if(skip) continue;
 			if(f.getAttr("gene_id") == null)
 				Log.closeWithError("Wrong annotation file format. Features should have gene_id attribute.", null);
 			if(Arrays.binarySearch(black_list, f.getAttr("gene_id")) >= 0)
@@ -187,7 +202,6 @@ public class ReadCounter {
 			int strand = f.strand;
 			switch(f.feature) {
 			case "gene":
-				stat[0]++;
 				if(chr == null || !chr.getID().equals(f.seqname)) {
 					if(chr != null)
 						chr.loaded();
@@ -200,6 +214,7 @@ public class ReadCounter {
 				g = new Gene(f.start, f.stop,strand, f.seqname,f.getAttr("gene_id"));
 				chr.addGene(g);
 				genes.add(g);
+				stat[0]++;
 				break;
 			case "segment":
 				try {
@@ -229,16 +244,21 @@ public class ReadCounter {
 		Log.println("Annotation loaded: #chr="+chrs.size()+"; #genes="+stat[0]+"; #segs="+stat[1]+"; #introns="+stat[2]);
 	}
 	
-	private void countReads() throws IOException  {
-		if(!(new File(Settings.S().getString(Settings.IN))).exists())
-			Log.closeWithError("Input file '"+Settings.S().getString(Settings.IN)+"' doesn't exists",new RuntimeException());
-		SamReader in = SamReaderFactory.makeDefault().open(SamInputResource.of(new BufferedInputStream(new FileInputStream(Settings.S().getString(Settings.IN)),10000000)));
+	private void countReads(String bamname) throws IOException  {
+		if(!new File(bamname).exists())
+			Log.closeWithError("Input file '"+bamname+"' doesn't exists",new RuntimeException());
+		//SamReader in = SamReaderFactory.makeDefault().open(SamInputResource.of(new BufferedInputStream(new FileInputStream(bamname),10000000)));
+		SamReader in = SamReaderFactory.makeDefault().open(new File(bamname));
 		if(!in.getFileHeader().getAttribute("SO").equals("coordinate"))
-			Log.closeWithError("Input file '"+Settings.S().getString(Settings.IN)+"' is not sorted",new RuntimeException());
+			Log.closeWithError("Input file '"+bamname+"' is not sorted",new RuntimeException());
 		SingleReadReader sreader = new SingleReadReader(chrs);
 		PairedReadReader preader = new PairedReadReader(chrs);
 		long i = 0;
-		Iterator<SAMRecord> samIterator = in.iterator();
+		Iterator<SAMRecord> samIterator = null;
+		if(contig != null)
+			samIterator = in.query(contig,start,end,false);
+		else
+			samIterator = in.iterator();
 		for(;samIterator.hasNext();) {
 			try{
 				SAMRecord r = samIterator.next();
@@ -264,7 +284,7 @@ public class ReadCounter {
 		in.close();
 	}
 	
-	public static void countAndPrint() throws IOException {
+	public static void countAndPrint(String in, String out, String contig,int start, int end) throws IOException {
 		Log.addStat(Log.UNMAPPED, 0);
 		Log.addStat(Log.MULTI_READS, 0);
 		Log.addStat(Log.EXON_READS, 0);
@@ -279,12 +299,19 @@ public class ReadCounter {
 		Log.addStat(Log.PCR_DUPLICATES, 0);
 		if(Settings.S().getBoolean(Settings.LOOK_FOR_GENE_FOR_UNKNOWN_JUNCTIONS))
 			Log.addStat(Log.NEW_JUNCTIONS_FOUND, 0);
-		Log.println("Count reads: "+Settings.S().getString(Settings.IN)+" -> "+Settings.S().getString(Settings.OUT_BASE));
-		ReadCounter r = new ReadCounter();
-		r.countReads();
+		String region = "";
+		if(contig != null) {
+			region = " "+contig;
+			if(start != 0)
+				region = region+":"+start;
+			if(end != 0)
+				region = region+"-"+end;
+		}
+		Log.println("Count reads: "+in+" -> "+out+region);
+		ReadCounter r = new ReadCounter(contig,start,end);
+		r.countReads(in);
 		try {
-//			r.printGeneCov(r.genes);
-			r.printSegCov(r.genes);
+			r.printSegCov(r.genes,out);
 //			r.printIntronCov();
 			Log.printStat();
 			Log.cleanStat();
@@ -341,7 +368,7 @@ public class ReadCounter {
 	}
 	
 	
-	private void printSegCov(ArrayList<Gene> genes) throws FileNotFoundException {
+	private void printSegCov(ArrayList<Gene> genes,String out_base) throws FileNotFoundException {
 		SSIHashMap ir = new SSIHashMap();
 		SSIHashMap er = new SSIHashMap();
 		ArrayList<String> segids_a = new ArrayList<>();
@@ -385,9 +412,9 @@ public class ReadCounter {
 		String[] cells = cells_h.toArray(new String[0]);
 		String[] intron_names = intron_names_h.toArray(new String[0]);
 			
-		ir.writeMM(Settings.S().getString(Settings.OUT_BASE)+".i", segids, cells);
-		er.writeMM(Settings.S().getString(Settings.OUT_BASE)+".e", segids, cells);
-		ic.writeMM(Settings.S().getString(Settings.OUT_BASE)+".intron", intron_names, cells);
+		ir.writeMM(out_base+".i", segids, cells);
+		er.writeMM(out_base+".e", segids, cells);
+		ic.writeMM(out_base+".intron", intron_names, cells);
 	}
 }
 
