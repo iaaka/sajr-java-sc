@@ -245,6 +245,7 @@ public class ReadCounter {
 	}
 	
 	private void countReads(String bamname) throws IOException  {
+		int max_reads = Settings.S().getInt(Settings.MAX_READS);
 		if(!new File(bamname).exists())
 			Log.closeWithError("Input file '"+bamname+"' doesn't exists",new RuntimeException());
 		//SamReader in = SamReaderFactory.makeDefault().open(SamInputResource.of(new BufferedInputStream(new FileInputStream(bamname),10000000)));
@@ -266,6 +267,8 @@ public class ReadCounter {
 				if(i % 10000000 == 0) {
 					Log.println(i+" lines parsed");
 				}
+				if(max_reads != -1 && i > max_reads)
+					break;
 				i++;
 				if(!accept(r)) {
 					continue;
@@ -326,6 +329,9 @@ public class ReadCounter {
 			Log.warn("Mates of read '"+r.getReadName()+"' are from different chromosomes, while bam FLAG says that they are properly paired. They will be treated as singletons.");
 			r.setProperPairFlag(false);
 		}
+		
+		if(Settings.S().getBoolean(Settings.USE_BAM_DEDUPL) &&	r.getDuplicateReadFlag())
+			return false;
 		
 		if(r.getReadUnmappedFlag()) {
 			Log.addStat(Log.UNMAPPED, 1);

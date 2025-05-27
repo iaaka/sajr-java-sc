@@ -53,6 +53,8 @@ public class Settings {
 	public static final String FOREIGN_JUNC_COV  = "foreign_junc_cov";
 	public static final String FORSED_INTRON_SET = "forced_intron_set";
 	public static final String GENOME_POS = "genome_pos";
+	public static final String MAX_READS = "max_reads";
+	public static final String USE_BAM_DEDUPL = "use_bam_dedupl";
 	
 	public static final String BAM_CELL_BARCODE_ATTR = "bam_cell_barcode_attr";
 	public static final String BAM_UMI_ATTR = "bam_umi_attr";
