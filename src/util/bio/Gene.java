@@ -76,12 +76,11 @@ public class Gene extends Interval {
 					ecov[i] += j.getCov(b);
 				switch(segs.get(i).segpos) {
 				case FIRST:
-					tot_first += ecov[i];
+					tot_first += segs.get(i).getCov(b);
 					break;
 				case LAST:
-					tot_last += ecov[i];
-					break;
-				
+					tot_last += segs.get(i).getCov(b);
+					break;	
 				}
 			}
 
@@ -89,21 +88,18 @@ public class Gene extends Interval {
 				Seg s = segs.get(i);
 				if(s.getId() == null)
 					continue;
+				ir.set(s.getId(), b, s.getCov(b));
 				switch(s.segpos) {
 				case FIRST:
-					ir.set(s.getId(), b, ecov[i]);
 					er.set(s.getId(), b, (tot_first-ecov[i]));
 					break;
 				case LAST:
-					ir.set(s.getId(), b, ecov[i]);
 					er.set(s.getId(), b, (tot_last-ecov[i]));
 					break;
 				case INTERNAL:
-					ir.set(s.getId(), b, s.getCov(b));
 					er.set(s.getId(), b, ecov[i]);
 					break;
 				case ONLY:
-					ir.set(s.getId(), b, s.getCov(b));
 					er.set(s.getId(), b, ecov[i]);
 					break;
 				}
@@ -329,6 +325,7 @@ public class Gene extends Interval {
 		if(Settings.S().getBoolean(Settings.COUNT_ONLY_BORDER_READS) & r.length==2) {
 			return res;
 		}
+		
 		for(int i=0;i<r.length;i+=2) {
 			int inx = Collections.binarySearch(segs, new Interval(r[i],r[i+1],strand)); 
 			if(inx < 0)
