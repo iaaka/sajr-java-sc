@@ -91,10 +91,10 @@ public class Gene extends Interval {
 				ir.set(s.getId(), b, s.getCov(b));
 				switch(s.segpos) {
 				case FIRST:
-					er.set(s.getId(), b, (tot_first-ecov[i]));
+					er.set(s.getId(), b, (tot_first-s.getCov(b)));
 					break;
 				case LAST:
-					er.set(s.getId(), b, (tot_last-ecov[i]));
+					er.set(s.getId(), b, (tot_last-s.getCov(b)));
 					break;
 				case INTERNAL:
 					er.set(s.getId(), b, ecov[i]);
