@@ -68,20 +68,23 @@ public class Gene extends Interval {
 		
 		for(String b : barcodes) {
 			int[] ecov = new int[segs.size()];
-			int tot_first = 0;
-			int tot_last = 0;
+			//int tot_first = 0;
+			//int tot_last = 0;
 			for(int i=0;i<segs.size();i++) {
 				LinkedList<Intron> ints = seg2intron.get(segs.get(i));
 				for(Intron j : ints)
 					ecov[i] += j.getCov(b);
-				switch(segs.get(i).segpos) {
+				// that was an attempt to account for alternative first/last exons
+				// it worked if second exon was always the same
+				// but in other cases the results were strange, so I dropped it
+				/*switch(segs.get(i).segpos) {
 				case FIRST:
 					tot_first += segs.get(i).getCov(b);
 					break;
 				case LAST:
 					tot_last += segs.get(i).getCov(b);
 					break;	
-				}
+				}*/
 			}
 
 			for(int i =0;i<segs.size();i++) {
@@ -89,7 +92,8 @@ public class Gene extends Interval {
 				if(s.getId() == null)
 					continue;
 				ir.set(s.getId(), b, s.getCov(b));
-				switch(s.segpos) {
+				er.set(s.getId(), b, ecov[i]);
+				/*switch(s.segpos) {
 				case FIRST:
 					er.set(s.getId(), b, (tot_first-s.getCov(b)));
 					break;
@@ -102,7 +106,7 @@ public class Gene extends Interval {
 				case ONLY:
 					er.set(s.getId(), b, ecov[i]);
 					break;
-				}
+				}*/
 			}
 		}
 	}
