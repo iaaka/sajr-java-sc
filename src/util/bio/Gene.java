@@ -158,12 +158,17 @@ public class Gene extends Interval {
 		Collections.sort(stop_introns,comp);
 		//assumes that gene leftmost segment is first if strand is 1 and last otherwise
 		//need to treat unstranded data.
-		int rstrand = segs.get(0).segpos == Seg.segPos.FIRST?1:-1;
+		//int rstrand = segs.get(0).segpos == Seg.segPos.FIRST?1:-1;
 		for(Seg s : segs) {
 			LinkedList<Intron> ints = new LinkedList<>();
 			r.put(s, ints);
+			int inx;
 			//set position by genome rather than by transcript
-			Seg.segPos tmp = Seg.segPos.INTERNAL;
+			// commented code below treated first/last exons differently counting rather inclusion introns than exclusion ones 
+			// that was used later to get exclusion counts by summing across all other alternative first/last exons
+			// i decided to drop it as it works properly only for common second exon and relay on coverage evenness otherwise.
+			// may first/last exons be treated same way as internal!
+			/*Seg.segPos tmp = Seg.segPos.INTERNAL;
 			switch(s.segpos){
 			case FIRST:
 				tmp = rstrand==1?Seg.segPos.FIRST:Seg.segPos.LAST;
@@ -178,7 +183,7 @@ public class Gene extends Interval {
 				for(;inx<introns.size() && introns.get(inx).start == s.stop+1;inx++)
 					ints.add(introns.get(inx));
 				break;
-			case INTERNAL:
+			case INTERNAL:*/
 				inx = -Collections.binarySearch(introns, new Interval(s.start,s.start-2,strand))-1;
 				for(int i=inx;i<introns.size();i++) {
 					if(introns.get(i).start != s.start)
@@ -193,14 +198,14 @@ public class Gene extends Interval {
 					if(s.start <= i.stop)
 						ints.add(i);
 				}
-				break;
+				/*break;
 			case LAST:
 				inx = -Collections.binarySearch(stop_introns, new Interval(s.start+1,s.start-1,strand),comp)-2;
 				for(;inx>=0 && introns.get(inx).stop == s.start-1;inx--)
 					ints.add(introns.get(inx));
 				break;
 			
-			}
+			}*/
 		}
 		return r;
 	}
@@ -326,9 +331,9 @@ public class Gene extends Interval {
 		
 	public HashSet<Seg> getSegForRead(int[] r){
 		HashSet<Seg> res = new HashSet<>();
-		if(Settings.S().getBoolean(Settings.COUNT_ONLY_BORDER_READS) & r.length==2) {
+		/*if(Settings.S().getBoolean(Settings.COUNT_ONLY_BORDER_READS) & r.length==2) {
 			return res;
-		}
+		}*/
 		
 		for(int i=0;i<r.length;i+=2) {
 			int inx = Collections.binarySearch(segs, new Interval(r[i],r[i+1],strand)); 
@@ -354,8 +359,14 @@ public class Gene extends Interval {
 			}
 			HashSet<Seg> res_ = new HashSet<>();
 			for(Seg s : res) {
+				// add read that confirms segment border
 				if(starts.contains(s.start) || stops.contains(s.stop))
 					res_.add(s);
+				// for retained introns keep reads that go through border
+				// in theory alt donor/acceptors can also use this type of reads, but it is not implemented
+				if(s.segtype == Seg.segType.INT & res.size() > 1) {
+					res_.add(s);
+				}
 			}
 			res = res_;
 		}
